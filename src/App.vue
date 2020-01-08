@@ -14,8 +14,6 @@ export default {
 }
 </script>
 <style lang="less" >
-@import url("~@/style/variables.less");
-#box{
-  color:@color-primary;
-}
+// @import url("~@/style/variables.less");
+
 </style>

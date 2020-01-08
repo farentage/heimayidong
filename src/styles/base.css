@@ -1,0 +1,9 @@
+body {
+  background: #f5f7f9;
+}
+.van-hairline--bottom {
+  background: #3296fa;
+}
+.van-hairline--bottom .van-nav-bar__title {
+  color: #000;
+}
