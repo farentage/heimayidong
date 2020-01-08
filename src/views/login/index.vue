@@ -14,11 +14,20 @@
        left-icon="contact"
        placeholder="请输入验证码"
       >
+      <van-count-down
+      v-if="isCountDownShow"
+      slot="button"
+      :time="1000*1"
+      format="ss s"
+      @finish="isCountDownShow=false"
+       />
         <van-button
+        v-else
         slot="button"
         size="small"
         type="primary"
         round
+         @click="onCountDownShow"
         >发送验证码</van-button>
       </van-field>
     </van-cell-group>
@@ -30,19 +39,40 @@
 </template>
 
 <script>
-import request from '@/utils/request'
-// import { log } from 'util'
+import { login, getSmsCode } from '@/api/user'
+
 export default {
   data () {
     return {
       user: {
         mobile: '',
         code: ''
-      }
+      },
+      isCountDownShow: false
+
     }
   },
   methods: {
-
+    // 发送验证码
+    async onCountDownShow () {
+      try {
+        // 获取手机号
+        const { mobile } = this.user
+        // 验证手机号是否有效
+        // try {
+        const res = await getSmsCode(mobile)
+        console.log(res)
+        this.isCountDownShow = true
+        // } catch (error) {
+        //   console.log(error)
+        //   this.isCountDownShow = false
+        // }
+      } catch (error) {
+        console.log(error)
+        this.$toast('请勿频繁发送')
+      }
+    },
+    // 登录
     async onLogin () {
       this.$toast.loading({
         duration: 0,
@@ -51,16 +81,12 @@ export default {
       })
 
       try {
-        const res = await request({
-          url: '/app/v1_0/authorizations',
-          method: 'POST',
-          data: this.user
-        })
+        const res = await login(this.user)
         console.log('登陆成功', res)
-        this.$toast.success('成功文案')
+        this.$toast.success('登陆成功')
       } catch (error) {
         console.log('登陆失败', error)
-        this.$toast.fail('失败文案')
+        this.$toast.fail('登陆失败')
       }
     }
   }
