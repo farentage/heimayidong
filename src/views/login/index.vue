@@ -1,36 +1,45 @@
 <template>
   <div class="login">
     <van-nav-bar title="登录" />
-    <van-cell-group>
-      <van-field
-        v-model="user.mobile"
-        clearable
-        left-icon="contact"
-        placeholder="请输入手机号"
-      />
+<!--
+      表单验证
+      1、使用 ValidationObserver 组件把需要验证的整个表单包起来
+      2、使用 ValidationProvider 组件把具体的表单元素包起来，例如 input
+         name   配置字段的提示名称
+         rules  配置校验规则
+         v-slot="{ errors }" 获取校验失败的错误提示消息 -->
+    <ValidationObserver  ref="from">
+      <ValidationProvider name="手机号" rules="required|mobile" immediate>
+        <van-field v-model="user.mobile"     placeholder="请输入手机号" >
+          <!-- <i class="icon icon-mima" slot="left-icon"></i> -->
+       <i class="iconfont icon-mobile-copy" slot="left-icon"></i>
 
-      <van-field
-       v-model="user.code"
-       left-icon="contact"
-       placeholder="请输入验证码"
-      >
-      <van-count-down
-      v-if="isCountDownShow"
-      slot="button"
-      :time="1000*1"
-      format="ss s"
-      @finish="isCountDownShow=false"
-       />
-        <van-button
-        v-else
-        slot="button"
-        size="small"
-        type="primary"
-        round
-         @click="onCountDownShow"
-        >发送验证码</van-button>
-      </van-field>
-    </van-cell-group>
+        </van-field>
+        <!-- <span>{{errors[0] }}</span> -->
+      </ValidationProvider>
+
+      <ValidationProvider name="验证码" rules="required|code" immediate>
+        <van-field v-model="user.code"   placeholder="请输入验证码" >
+      <i class="iconfont icon-verify-fill" slot="left-icon"></i>
+          <van-count-down
+            v-if="isCountDownShow"
+            slot="button"
+            :time="1000*6"
+            format="ss s"
+            @finish="isCountDownShow=false"
+          />
+          <van-button
+            v-else
+            slot="button"
+            size="small"
+            type="primary"
+            round
+            @click="onCountDownShow"
+          >发送验证码</van-button>
+        </van-field>
+
+      </ValidationProvider>
+    </ValidationObserver>
 
     <div class="login-btn-warp">
       <van-button class="login-button" type="info" @click="onLogin">登录</van-button>
@@ -40,7 +49,7 @@
 
 <script>
 import { login, getSmsCode } from '@/api/user'
-
+import { validate } from 'vee-validate'
 export default {
   data () {
     return {
@@ -49,7 +58,6 @@ export default {
         code: ''
       },
       isCountDownShow: false
-
     }
   },
   methods: {
@@ -58,6 +66,16 @@ export default {
       try {
         // 获取手机号
         const { mobile } = this.user
+        const validateResult = await validate(mobile, 'required|mobile', {
+          name: '手机号'
+        })
+        if (!validateResult.valid) {
+          console.log(validateResult)
+
+          this.$toast(validateResult.errors[0])
+          return
+        }
+
         // 验证手机号是否有效
         // try {
         const res = await getSmsCode(mobile)
@@ -74,6 +92,20 @@ export default {
     },
     // 登录
     async onLogin () {
+      // 表单验证
+      const success = await this.$refs.from.validate()
+      if (!success) {
+        const errors = this.$refs.from.errors
+
+        for (let key in errors) {
+          const item = errors[key]
+          if (item[0]) {
+            this.$toast(item[0])
+            return
+          }
+        }
+        return
+      }
       this.$toast.loading({
         duration: 0,
         message: '加载中...',
@@ -100,6 +132,9 @@ export default {
     .login-button {
       width: 100%;
     }
+  }
+  .van-cell{
+    align-items: center
   }
 }
 </style>
