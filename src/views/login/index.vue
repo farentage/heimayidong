@@ -117,6 +117,7 @@ export default {
         this.$store.commit('setUser', res.data.data)
         console.log('登陆成功', res)
         this.$toast.success('登陆成功')
+        this.$router.push('/')
       } catch (error) {
         console.log('登陆失败', error)
         this.$toast.fail('登陆失败')

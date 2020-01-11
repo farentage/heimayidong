@@ -6,7 +6,14 @@ import {
   NavBar,
   Field,
   Toast,
-  CountDown
+  CountDown,
+  Tabbar,
+  TabbarItem,
+  Grid,
+  GridItem,
+  Image,
+  Icon
+
 } from 'vant'
 
 Vue
@@ -17,3 +24,9 @@ Vue
   .use(Field)
   .use(Toast)
   .use(CountDown)
+  .use(Tabbar)
+  .use(TabbarItem)
+  .use(Grid)
+  .use(GridItem)
+  .use(Image)
+  .use(Icon)
