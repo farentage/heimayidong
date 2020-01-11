@@ -114,6 +114,7 @@ export default {
 
       try {
         const res = await login(this.user)
+        this.$store.commit('setUser', res.data.data)
         console.log('登陆成功', res)
         this.$toast.success('登陆成功')
       } catch (error) {
