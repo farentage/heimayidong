@@ -3,32 +3,32 @@
     <!-- 已登录：用户信息 -->
     <div class="user-info-wrap" v-if="$store.state.user">
       <div class="base-info-wrap">
-        <div class="avatar-title-wrap">
+        <div class="avatar-title-wrap" @click="$router.push('/user/'+user.id)">
           <van-image
             class="avatar"
             round
             fit="cover"
-            src="https://img.yzcdn.cn/vant/cat.jpeg"
+            :src="user.photo"
           />
-          <div class="title">黑马程序员</div>
+          <div class="title">{{user.name}}</div>
         </div>
         <van-button round size="mini">编辑资料</van-button>
       </div>
       <van-grid class="data-info" :border="false">
         <van-grid-item>
-          <span class="count">123</span>
+          <span class="count">{{user.art_count}}</span>
           <span class="text">头条</span>
         </van-grid-item>
         <van-grid-item>
-          <span class="count">123</span>
+          <span class="count">{{user.follow_count}}</span>
           <span class="text">关注</span>
         </van-grid-item>
         <van-grid-item>
-          <span class="count">123</span>
+          <span class="count">{{user.fans_count}}</span>
           <span class="text">粉丝</span>
         </van-grid-item>
         <van-grid-item>
-          <span class="count">123</span>
+          <span class="count">{{user.like_count}}</span>
           <span class="text">获赞</span>
         </van-grid-item>
       </van-grid>
@@ -62,6 +62,7 @@
 
     <van-cell-group v-if="$store.state.user">
       <van-cell
+      @click="onLogin"
         style="text-align: center;"
         title="退出登录"
         clickable
@@ -72,18 +73,46 @@
 </template>
 
 <script>
+import { getUserInfo } from '@/api/user'
 export default {
   name: 'MyPage',
   components: {},
   props: {},
   data () {
-    return {}
+    return {
+      user: [] // 用户信息
+    }
   },
   computed: {},
   watch: {},
-  created () {},
+  created () {
+    if (this.$store.state.user) {
+      this.loadUser()
+    }
+  },
   mounted () {},
-  methods: {}
+  methods: {
+    //   获取登录用户个人资料
+    async loadUser () {
+      try {
+        const { data } = await getUserInfo()
+        console.log(data)
+
+        this.user = data.data
+      } catch (err) {
+        console.log(err)
+        this.$toast('获取数据失d')
+      }
+    },
+    // 退出
+    async onLogin () {
+      await this.$dialog.confirm({
+        title: '退出提示',
+        message: '确定退出么'
+      })
+      this.$store.commit('setUser', null)
+    }
+  }
 }
 </script>
 
